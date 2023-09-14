@@ -1,0 +1,71 @@
+<div class="container">
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <h2 class="text-center text-dark mt-5">Register Form</h2>
+        <div class="text-center mb-5 text-dark">Made with bootstrap</div>
+        <div class="card my-5">
+
+          <form [formGroup]="RegisterForm" class="card-body cardbody-color p-lg-5">
+
+            <div class="text-center">
+              <img src="https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295397__340.png" class="img-fluid profile-image-pic img-thumbnail rounded-circle my-3"
+                width="200px" alt="profile">
+            </div>
+
+            <div class="mb-3">
+              <input formControlName="FirstName" type="text" class="{{submitted && RegisterForm.controls['FirstName'].errors ? 'form-control is-invalid' : 'form-control'}}" id="FirstName" aria-describedby="emailHelp"
+                placeholder="First Name">
+                <div *ngIf="submitted && RegisterForm.controls['FirstName'].errors" class="text-danger" >
+                    Required Field
+                  </div>
+            </div>
+
+            <div class="mb-3">
+                <input formControlName="Lastname" type="text" class="{{submitted && RegisterForm.controls['Lastname'].errors ? 'form-control is-invalid' : 'form-control'}}" id="Lastname" aria-describedby="emailHelp"
+                  placeholder="Last Name">
+                  <div *ngIf="submitted && RegisterForm.controls['Lastname'].errors" class="text-danger" >
+                      Required Field
+                    </div>
+              </div>
+
+              <div class="mb-3">
+                <input formControlName="Email" type="email" class="{{submitted && RegisterForm.controls['Email'].errors ? 'form-control is-invalid' : 'form-control'}}" id="Email" aria-describedby="emailHelp"
+                  placeholder="Email">
+                  <div *ngIf="submitted && RegisterForm.controls['Email'].errors" class="text-danger" >
+                      Required Field
+                    </div>
+              </div>
+
+              <div class="mb-3">
+                <input formControlName="Password" type="password" class="{{submitted && RegisterForm.controls['Password'].errors ? 'form-control is-invalid' : 'form-control'}}" id="Password" aria-describedby="emailHelp"
+                  placeholder="Password">
+                  <div *ngIf="submitted && RegisterForm.controls['Password'].errors" class="text-danger" >
+                      Required Field
+                    </div>
+              </div>
+            <div class="mb-3">
+              <input formControlName="ConfirmPass" type="ConfirmPass" class="{{submitted && RegisterForm.controls['ConfirmPass'].errors ? 'form-control is-invalid' : 'form-control'}}" id="ConfirmPass" placeholder="Confirm password">
+              <div *ngIf="submitted && RegisterForm.controls['ConfirmPass'].errors" class="text-danger" >
+                Required Field
+              </div>
+
+              <div *ngIf="this.RegisterForm.get('Password')?.value != this.RegisterForm.get('ConfirmPass')?.value" class="text-danger" >
+                This field should match.
+              </div>
+            </div>
+
+            <div *ngIf="sucessMgs != ''" class="alert alert-primary" role="alert">
+                {{sucessMgs}}
+            </div>
+
+            
+            <div (click)="submit()" class="text-center"><button type="submit" class="btn btn-color px-5 mb-5 w-100">Register</button></div>
+            <div id="emailHelp" class="form-text text-center mb-5 text-dark">
+              Registered? <a [routerLink]="['/login']" class="text-dark fw-bold"> Login Here</a>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,361 @@
+
+
+
+
+<form [formGroup]="SearchForm">
+  <div class="form-row align-items-right mt-2">
+    <div class="col-auto">
+      
+      <input formControlName="Title" type="text" class="form-control mb-2" id="inlineFormInput" placeholder="Title">
+    </div>
+    <div class="col-auto">
+      
+      <input formControlName="DueDate" type="date" class="form-control mb-2" id="inlineFormInput" placeholder="Due Date">
+    </div>
+    <div class="col-auto">
+      <select (change)="SearchForm.get('Status')?.setValue(val.value)" #val  id="inputState" class="form-control mb-2">
+        <option *ngFor="let j of status" [value]="j" >{{j}}</option>
+        
+      </select>
+    </div>
+    <div class="col-auto">
+      <button (click)="searchFilter()" type="submit" class="btn btn-primary mb-2">Submit</button>
+    </div>
+    <div class="col-auto">
+      <button data-toggle="modal" data-target="#exampleModal" type="button" class="btn btn-primary mb-2 ">Add Task</button>
+    </div>
+    
+    
+    
+  </div>
+
+  <button (click)="Logout()" style="position: absolute; right: 0; top: 10px;" class="btn btn-primary">Logout</button>
+  <button (click)="getUser()" data-toggle="modal" data-target="#EditProfileModel" style="position: absolute; right: 5%; top: 10px;" class="btn btn-primary">Edit Profile</button>
+  <h3 style="position: absolute; right: 12%; top: 10px;">Logged In User : {{sessionData.FirstName}}</h3>
+</form>
+
+
+
+
+
+<div class="table-responsive -xl">
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Title</th>
+        <th scope="col">Description</th>
+        <th scope="col">Due Date</th>
+        <th scope="col">Status</th>
+        <th scope="col">Assign By</th>
+        <th scope="col">Assign To</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody *ngFor="let i of AllTask, index as j">
+      <tr>
+        <th scope="row">{{j + 1}}</th>
+        <td>{{i.Title}}</td>
+        <td>{{i.Description}}</td>
+        <td>{{i.DueDate | date : 'dd/MM/yyyy'}}</td>
+        <td>
+          <div class="form-group col-md-5">
+            
+            <select #statusValue (change)="changeStatus(i._id,statusValue.value)" id="inputState" class="form-control">
+              <option *ngFor="let j of status" [value]="j" [selected]="j == i.Status">{{j}}</option>
+              
+            </select>
+          </div>
+    </td>
+        <td>{{sessionData._id == i.AssignedBy ? '(You) '+sessionData.FirstName : i.UserInfo[0]?.FirstName}}</td>
+        <td>{{getAssignToUser(i.AssignedTo)[0] ? getAssignToUser(i.AssignedTo)[0] .FirstName : ''}}</td>
+          <td>
+            <div class="btn-group" role="group" aria-label="Basic example">
+            <button (click)="getSingleTask(i)" data-toggle="modal" data-target="#EditModel" type="button" class="btn btn-primary mr-2">Edit</button>
+            <button (click)="Todeleteid = i._id" data-toggle="modal" data-target="#DeleteModel" type="button" class="btn btn-primary mr-2">Remove</button>
+            <button (click)="AssignForm.get('id')?.setValue(i._id)" data-toggle="modal" data-target="#AssignModel" type="button" class="btn btn-primary mr-2">Assign</button>
+          </div>
+        </td>
+          
+      </tr>
+      
+    </tbody>
+  </table>
+</div>
+
+
+
+
+<!-- Create Task modal -->
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Create Task</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="AddForm" >
+
+                
+    
+                <div class="form-group">
+                  <input formControlName="Title" type="text" class="{{submitted && AddForm.controls['Title'].errors ? 'form-control is-invalid' : 'form-control'}}" id="Title" aria-describedby="emailHelp"
+                    placeholder="Title">
+                    <div *ngIf="submitted && AddForm.controls['Title'].errors" class="text-danger" >
+                        Required Field
+                      </div>
+                </div>
+    
+                <div class="form-group">
+                    <textarea formControlName="Description" type="text" class="{{submitted && AddForm.controls['Description'].errors ? 'form-control is-invalid' : 'form-control'}}" id="Description" aria-describedby="emailHelp"
+                      placeholder="Description"></textarea>
+                      <div *ngIf="submitted && AddForm.controls['Description'].errors" class="text-danger" >
+                          Required Field
+                        </div>
+                  </div>
+    
+                  <div class="form-group">
+                    <input formControlName="DueDate" type="date" class="{{submitted && AddForm.controls['DueDate'].errors ? 'form-control is-invalid' : 'form-control'}}" id="DueDate" aria-describedby="emailHelp"
+                      placeholder="Email">
+                      <div *ngIf="submitted && AddForm.controls['DueDate'].errors" class="text-danger" >
+                          Required Field
+                        </div>
+                  </div>
+    
+                  <div class="form-group">
+                    
+                    <select formControlName="Status" class="{{submitted && AddForm.controls['Status'].errors ? 'form-control is-invalid' : 'form-control'}}" id="Status">
+                        <option value="">Select Status</option>
+                        <option *ngFor="let i of status">{{i}}</option>
+                        
+                        
+                    </select>
+                    
+                      <div *ngIf="submitted && AddForm.controls['Status'].errors" class="text-danger" >
+                          Required Field
+                        </div>
+                  </div>
+                
+    
+                <div *ngIf="sucessMgs != ''" class="alert alert-primary" role="alert">
+                    {{sucessMgs}}
+                </div>
+    
+                
+                
+              </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" #closePostTaskBtn class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button (click)="submit()" type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+
+<!-- Edit Model -->
+
+
+<div class="modal fade" id="EditModel" tabindex="-1" role="dialog" aria-labelledby="EditModel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="EditModel">Edit Task</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <form [formGroup]="EditForm" >
+
+              
+  
+              <div class="form-group">
+                <input formControlName="Title" type="text" class="{{EditFormSubmitted && EditForm.controls['Title'].errors ? 'form-control is-invalid' : 'form-control'}}" id="Title" aria-describedby="emailHelp"
+                  placeholder="Title">
+                  <div *ngIf="EditFormSubmitted && EditForm.controls['Title'].errors" class="text-danger" >
+                      Required Field
+                    </div>
+              </div>
+  
+              <div class="form-group">
+                  <textarea formControlName="Description" type="text" class="{{EditFormSubmitted && EditForm.controls['Description'].errors ? 'form-control is-invalid' : 'form-control'}}" id="Description" aria-describedby="emailHelp"
+                    placeholder="Description"></textarea>
+                    <div *ngIf="EditFormSubmitted && EditForm.controls['Description'].errors" class="text-danger" >
+                        Required Field
+                      </div>
+                </div>
+  
+                <div class="form-group">
+                  <input formControlName="DueDate" type="date" class="{{EditFormSubmitted && EditForm.controls['DueDate'].errors ? 'form-control is-invalid' : 'form-control'}}" id="DueDate" aria-describedby="emailHelp"
+                    placeholder="Email">
+                    <div *ngIf="EditFormSubmitted && EditForm.controls['DueDate'].errors" class="text-danger" >
+                        Required Field
+                      </div>
+                </div>
+  
+                <div class="form-group">
+                  
+                  <select formControlName="Status" class="{{EditFormSubmitted && EditForm.controls['Status'].errors ? 'form-control is-invalid' : 'form-control'}}" id="Status">
+                      <option value="">Select Status</option>
+                      <option *ngFor="let i of status">{{i}}</option>
+                      
+                      
+                  </select>
+                  
+                    <div *ngIf="EditFormSubmitted && EditForm.controls['Status'].errors" class="text-danger" >
+                        Required Field
+                      </div>
+                </div>
+              
+  
+              <div *ngIf="sucessMgs != ''" class="alert alert-primary" role="alert">
+                  {{sucessMgs}}
+              </div>
+  
+              
+              
+            </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" #closePostTaskBtn class="btn btn-secondary" id="close" data-dismiss="modal">Close</button>
+        <button (click)="SubmitEditForm()" type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Delete Model -->
+
+
+<div class="modal fade" id="DeleteModel" tabindex="-1" role="dialog" aria-labelledby="DeleteModel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="DeleteModel">Delete Task</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          This Will Remove Your Task Permanently.
+      </div>
+      <div class="modal-footer">
+        <button (click)="deleteTask()" type="button"  class="btn btn-primary"  data-dismiss="modal">Confirm</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Assign Model -->
+
+
+<div class="modal fade" id="AssignModel" tabindex="-1" role="dialog" aria-labelledby="AssignModel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="AssignModel">Assign Task</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="AssignForm" >
+        <select #vals (change)="AssignForm.get('AssignedTo')?.setValue(vals.value)"  id="inputState" class="{{AssignedSubmitted && AssignForm.controls['AssignedTo'].errors ? 'form-control is-invalid' : 'form-control'}}" required>
+          <option [value]="">Select User</option>
+          <option *ngFor="let j of AllUser" [value]="j._id" >{{j.FirstName}}</option>
+          
+        </select>
+        <div *ngIf="AssignedSubmitted && AssignForm.controls['AssignedTo'].errors" class="text-danger" >
+          Required Field
+        </div>
+      </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" #closePostTaskBtn class="btn btn-secondary" id="closeAssign" data-dismiss="modal">Close</button>
+        <button (click)="AssignTask()" type="button"  class="btn btn-primary"  >Confirm</button>
+        
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Edit Profile -->
+
+<div class="modal fade" id="EditProfileModel" tabindex="-1" role="dialog" aria-labelledby="EditProfileModel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="EditProfileModel">Edit Profile</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <form [formGroup]="EditProfileForm" >
+
+              
+  
+              <div class="form-group">
+                <input formControlName="FirstName" type="text" class="{{EditProfileSubmitted && EditProfileForm.controls['FirstName'].errors ? 'form-control is-invalid' : 'form-control'}}" id="Title" aria-describedby="emailHelp"
+                  placeholder="First Name">
+                  <div *ngIf="EditProfileSubmitted && EditProfileForm.controls['FirstName'].errors" class="text-danger" >
+                      Required Field
+                    </div>
+              </div>
+  
+              <div class="form-group">
+                  <input formControlName="LastName" type="text" class="{{EditProfileSubmitted && EditProfileForm.controls['LastName'].errors ? 'form-control is-invalid' : 'form-control'}}" id="Description" aria-describedby="emailHelp"
+                    placeholder="Last name">
+                    <div *ngIf="EditProfileSubmitted && EditProfileForm.controls['LastName'].errors" class="text-danger" >
+                        Required Field
+                      </div>
+                </div>
+  
+                <div class="form-group">
+                  <input formControlName="Email" type="email" class="{{EditProfileSubmitted && EditProfileForm.controls['Email'].errors ? 'form-control is-invalid' : 'form-control'}}" id="DueDate" aria-describedby="emailHelp"
+                    placeholder="Email">
+                    <div *ngIf="EditProfileSubmitted && EditProfileForm.controls['Email'].errors" class="text-danger" >
+                        Required Field
+                      </div>
+                </div>
+  
+                <div class="form-group">
+                  <input formControlName="Password" type="password" class="{{EditProfileSubmitted && EditProfileForm.controls['Password'].errors ? 'form-control is-invalid' : 'form-control'}}" id="DueDate" aria-describedby="emailHelp"
+                    placeholder="Password">
+                    <div *ngIf="EditProfileSubmitted && EditProfileForm.controls['Password'].errors" class="text-danger" >
+                        Required Field
+                      </div>
+                </div>
+              
+  
+              <div *ngIf="sucessMgs != ''" class="alert alert-primary" role="alert">
+                  {{sucessMgs}}
+              </div>
+  
+              
+              
+            </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" #closePostTaskBtn class="btn btn-secondary" id="close" data-dismiss="modal">Close</button>
+        <button (click)="SubmitEditForm()" type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
